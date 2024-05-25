@@ -1,5 +1,4 @@
 #import <Foundation/Foundation.h>
-#import "CydiaSubstrateWrapper.h"
 
 %hook NSFileManager
 - (NSURL *)containerURLForSecurityApplicationGroupIdentifier:(NSString *)groupIdentifier {
