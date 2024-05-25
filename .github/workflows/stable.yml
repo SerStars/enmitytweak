@@ -85,9 +85,11 @@ jobs:
           gmake clean package FINALPACKAGE=1 DEVTOOLS=1 THEOS_PACKAGE_SCHEME=rootless
           mv $(find packages -name "*.deb" -print -quit) out/Enmity.Rootless.Development.deb
 
-      - name: Move SideloadFix.debs to out/
+      - name: Move Enmity.Sideload.deb to out/
         run: mv ${{ github.workspace }}/Enmity.Sideload.deb ${{ github.workspace }}/out/
-             mv ${{ github.workspace }}/Enmity.Sideload.Development.deb ${{ github.workspace }}/out/
+
+      - name: Move Enmity.Sideload.Development.deb to out/
+        run: mv ${{ github.workspace }}/Enmity.Sideload.Development.deb ${{ github.workspace }}/out/
 
       - name: Create Enmity.ipa
         run : |
