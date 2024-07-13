@@ -1,0 +1,121 @@
+name: Create a stable release
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 17 * * *'
+    - cron: '0 12 * * *'
+
+jobs:
+  build:
+    name: Build and publish Enmity for iOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: 'main'
+          submodules: true
+
+      - name: Run Script
+        id: discord_ipa_url
+        run: sh ./script.sh
+
+      - name: Check cache
+        id: verify-cache
+        run: |
+          echo "heads=`git ls-remote https://github.com/theos/theos | head -n 1 | cut -f 1`-`git ls-remote https://github.com/theos/sdks | head -n 1 | cut -f 1`" >> $GITHUB_OUTPUT
+
+      - name: Use cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ github.workspace }}/theos
+          key: ${{ runner.os }}-${{ steps.verify-cache.outputs.heads }}
+
+      - name: Prepare Theos
+        uses: Randomblock1/theos-action@v1
+
+      - name: Prepare Azule
+        run : |
+          git clone https://github.com/Al4ise/Azule ${{ github.workspace }}/Azule
+          cd Azule
+          git checkout 27c02b415cff15b1c131a0e95bcc2438023f86da
+
+      - name: Prepare Enmity Patcher
+        run : |
+          curl -L https://github.com/enmity-mod/patcher/releases/latest/download/patcher.mac-amd64 -o ${{ github.workspace }}/patcher
+          chmod +x patcher
+      
+      - name: Download Discord IPA
+        run: |
+          curl -L ${{ inputs.discord_ipa_url }} -o ${{ github.workspace }}/Discord.ipa
+
+      - name: Patch Discord
+        run : |
+          ${{ github.workspace }}/patcher ${{ github.workspace }}/Discord.ipa
+          mkdir out
+
+      - name: Retrieve version
+        id: version
+        run: echo "__ENMITY_VERSION=$(cat control | grep -E 'Version:(.*)' | awk '{ print $2 }')" >> $GITHUB_OUTPUT
+
+      - name: Build deb
+        run: |
+          rm -f packages/*
+          gmake clean package FINALPACKAGE=1
+          mv $(find packages -name "*.deb" -print -quit) out/Enmity.deb
+
+      - name: Build dev deb
+        run: |
+          rm -f packages/*
+          echo $"$(sed 's/Name\:.*/Name\: Enmity (Dev)/' control)" > control
+          echo $"$(sed 's/Package\:.*/Package\: app.enmity.dev/' control)" > control
+          gmake clean package FINALPACKAGE=1 DEVTOOLS=1
+          mv $(find packages -name "*.deb" -print -quit) out/Enmity.Development.deb
+
+      - name: Build deb with the sideload fix
+        run: |
+          rm -f packages/*
+          gmake clean package FINALPACKAGE=1 SIDELOAD=1
+          mv $(find packages -name "*.deb" -print -quit) out/Enmity.Sideload.deb
+
+      - name: Build dev deb with the sideload fix
+        run: |
+          rm -f packages/*
+          echo $"$(sed 's/Name\:.*/Name\: Enmity (Dev)/' control)" > control
+          echo $"$(sed 's/Package\:.*/Package\: app.enmity.dev/' control)" > control
+          gmake clean package FINALPACKAGE=1 DEVTOOLS=1 SIDELOAD=1
+          mv $(find packages -name "*.deb" -print -quit) out/Enmity.Sideload.Development.deb
+
+      - name: Build rootless deb
+        run: |
+          rm -f packages/*
+          gmake clean package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
+          mv $(find packages -name "*.deb" -print -quit) out/Enmity.Rootless.deb
+
+      - name: Build dev rootless deb
+        run: |
+          rm -f packages/*
+          echo $"$(sed 's/Name\:.*/Name\: Enmity (Dev)/' control)" > control
+          echo $"$(sed 's/Package\:.*/Package\: app.enmity.dev/' control)" > control
+          gmake clean package FINALPACKAGE=1 DEVTOOLS=1 THEOS_PACKAGE_SCHEME=rootless
+          mv $(find packages -name "*.deb" -print -quit) out/Enmity.Rootless.Development.deb
+
+      - name: Create Enmity.ipa
+        run : |
+          ${{ github.workspace }}/Azule/azule -U -i Enmity.ipa -o out -f out/Enmity.Sideload.deb
+          mv out/Enmity+Enmity.Sideload.deb.ipa out/Enmity.ipa
+
+      - name: Create Enmity.Dev.ipa
+        run : |
+          ${{ github.workspace }}/Azule/azule -U -i Enmity.ipa -o out -f out/Enmity.Sideload.Development.deb
+          mv out/Enmity+Enmity.Sideload.Development.deb.ipa out/Enmity.Development.ipa
+
+      - name: Create release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          automatic_release_tag: v${{ steps.version.outputs.__ENMITY_VERSION }}
+          title: "Enmity v${{ steps.version.outputs.__ENMITY_VERSION }}"
+          files: out/*
