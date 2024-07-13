@@ -16,9 +16,6 @@ jobs:
           ref: 'main'
           submodules: true
 
-      - name: Run Script
-        run: sh ./script.sh
-
       - name: Check cache
         id: verify-cache
         run: |
@@ -47,6 +44,7 @@ jobs:
       
       - name: Download Discord IPA
         run: |
+          sh ./script.sh
           curl -L ${{ env.discord_ipa_url }} -o ${{ github.workspace }}/Discord.ipa
 
       - name: Patch Discord
