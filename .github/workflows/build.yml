@@ -1,4 +1,4 @@
-name: Create a stable release
+name: Automatically create a stable release
 on:
   push:
   workflow_dispatch:
@@ -116,5 +116,5 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           automatic_release_tag: discord_${{ env.DISCORD_VERSION }}
-          title: "Discord v${{ steps.version.outputs.__DISCORD_VERSION }} | Enmity v{{ steps.version.outputs.__ENMITY_VERSION }}"
+          title: "Discord v${{ env.DISCORD_VERSION }} | Enmity v${{ steps.version.outputs.__ENMITY_VERSION }}"
           files: out/*
