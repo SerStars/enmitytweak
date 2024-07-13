@@ -110,6 +110,6 @@ jobs:
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
-          automatic_release_tag: discord_${{ env.DISCORD_VERSION }}
+          automatic_release_tag: ${{ env.DISCORD_VERSION }}
           title: "${{ env.DISCORD_VERSION }} | Enmity ${{ steps.version.outputs.__ENMITY_VERSION }}"
           files: out/*
