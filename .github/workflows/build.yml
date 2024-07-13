@@ -1,8 +1,5 @@
 name: Automatically create a stable release
-on:
-  workflow_run:
-    workflows: [build]
-    types: [requested]
+on: workflow_dispatch
 
 jobs:
   build:
