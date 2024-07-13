@@ -42,7 +42,7 @@ jobs:
           curl -L https://github.com/enmity-mod/patcher/releases/latest/download/patcher.mac-amd64 -o ${{ github.workspace }}/patcher
           chmod +x patcher
 
-      - name: Run Script to get discord_ipa_url
+      - name: Run Script to get discord_ipa_url & DISCORD_VERSION
         run: sh ./script.sh
       
       - name: Download Discord IPA
@@ -53,11 +53,6 @@ jobs:
         run : |
           ${{ github.workspace }}/patcher ${{ github.workspace }}/Discord.ipa
           mkdir out
-
-      - name: Retrieve Discord version
-        id: discord_version
-        run: |
-          echo "__DISCORD_VERSION=$(ls | grep Discord | sed -e s/[^0-9.]//g | sed -e s/[/.+?\./]//g)" >> $GITHUB_OUTPUT 
 
       - name: Retrieve Enmity version
         id: enmity_version
@@ -120,7 +115,6 @@ jobs:
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
-          automatic_release_tag: Discord ${{ steps.version.outputs.__DISCORD_VERSION }}
-          title: "Updated Enmity for Discord v${{ steps.version.outputs.__DISCORD_VERSION }}"
-          description: "Enmity Version: {{ steps.version.outputs.__ENMITY_VERSION }}\nDiscord Version: ${{ steps.version.outputs.__DISCORD_VERSION }}"
+          automatic_release_tag: discord_${{ env.DISCORD_VERSION }}
+          title: "Discord v${{ steps.version.outputs.__DISCORD_VERSION }} | Enmity v{{ steps.version.outputs.__ENMITY_VERSION }}"
           files: out/*
