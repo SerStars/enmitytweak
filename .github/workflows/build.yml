@@ -49,8 +49,8 @@ jobs:
           ${{ github.workspace }}/patcher ${{ github.workspace }}/Discord.ipa
           mkdir out
 
-      - name: Retrieve Enmity version
-        id: enmity_version
+      - name: Retrieve version
+        id: version
         run: echo "__ENMITY_VERSION=$(cat control | grep -E 'Version:(.*)' | awk '{ print $2 }')" >> $GITHUB_OUTPUT
 
       - name: Build deb
@@ -111,5 +111,5 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           automatic_release_tag: discord_${{ env.DISCORD_VERSION }}
-          title: "Discord v${{ env.DISCORD_VERSION }} | Enmity v${{ steps.version.outputs.__ENMITY_VERSION }}"
+          title: "${{ env.DISCORD_VERSION }} | Enmity v${{ steps.version.outputs.__ENMITY_VERSION }}"
           files: out/*
