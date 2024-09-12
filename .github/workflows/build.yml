@@ -107,6 +107,8 @@ jobs:
 
       - name: Create release
         uses: marvinpinto/action-automatic-releases@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.SERSTARS_BOT }}
         with:
           repo_token: "${{ secrets.SERSTARS_BOT }}"
           prerelease: false
