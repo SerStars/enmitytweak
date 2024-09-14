@@ -1,4 +1,4 @@
-name: Automatically create a stable release
+name: Automatically create a testflight release
 on: workflow_dispatch
 
 jobs:
