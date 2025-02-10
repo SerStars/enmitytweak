@@ -1,13 +1,6 @@
-const oObjectCreate = this.Object.create;
-const win = this;
-
-Object.create = function (...args) {
-  const obj = oObjectCreate.apply(this, args);
-
-  if (args[0] === null) {
-    win.modules = obj;
-    win.Object.create = oObjectCreate;
-  }
-
-  return obj;
-};
+// Based on https://github.com/unbound-app/bootstrap/blob/main/devtools.js
+let define;
+Object.defineProperty(globalThis, "__d", {
+	get: () => { globalThis.modules ??= globalThis.__c?.(); return define; },
+	set: v => { define = v; }
+});

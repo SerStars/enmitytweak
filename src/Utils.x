@@ -4,7 +4,7 @@
 // Get the download url for Enmity.js
 NSString* getDownloadURL() {
   if (!IS_DEBUG) {
-    return @"https://raw.githubusercontent.com/enmity-mod/enmity/main/dist/Enmity.js";
+    return @"https://raw.githubusercontent.com/SerStars/enmity/main/dist/Enmity.js";
   }
 
   return [NSString stringWithFormat:@"http://%@:8080/Enmity.js", DEBUG_IP];
@@ -16,7 +16,7 @@ BOOL checkForUpdate() {
     return true;
   }
 
-  NSMutableURLRequest *enmityRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://api.github.com/repos/enmity-mod/enmity/commits?path=dist%2FEnmity.js&page=1&per_page=1"]];
+  NSMutableURLRequest *enmityRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://api.github.com/repos/SerStars/enmity/commits?path=dist%2FEnmity.js&page=1&per_page=1"]];
   enmityRequest.timeoutInterval = 3.0;
   enmityRequest.cachePolicy = NSURLRequestReloadIgnoringCacheData;
   NSHTTPURLResponse *response;
